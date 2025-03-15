@@ -34,4 +34,92 @@ public class Course {
         this.semester = semester;
     }
 
+//SETTERS AND GETTERS
+
+
+// course id
+    /**
+     * Returns the unique ID of the course.
+     * 
+     * @return Course ID
+     */
+    public String getId() {
+        return id;
+    }
+//course name
+    /**
+     * Returns the course name.
+     * 
+     * @return Course name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the course name.
+     * 
+     * @param name New course name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    //course code
+    /**
+     * Returns the course code.
+     * 
+     * @return Course code
+     */
+    public String getCode() {
+        return code;
+    }
+
+    /**
+     * Sets the course code.
+     * 
+     * @param code New course code
+     */
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    //credit hours
+    /**
+     * Returns the number of credit hours.
+     * 
+     * @return Credit hours
+     */
+    public int getCredits() {
+        return credits;
+    }
+
+    /**
+     * Sets the number of credit hours.
+     * 
+     * @param credits New credit hours
+     */
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
+
+    //course instructor
+    /**
+     * Returns the name of the course instructor.
+     * 
+     * @return Course instructor name
+     */
+    public String getInstructor() {
+        return instructor;
+    }
+
+    /**
+     * Sets the name of the course instructor.
+     * 
+     * @param instructor New course instructor name
+     */
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
+    }
+
 }
