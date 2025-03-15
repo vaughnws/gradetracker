@@ -12,7 +12,7 @@
 
 ### Core Functionality
 - [ ] Create Student model (@assignee)
-- [ ] Create Course model (@assignee)
+- [ ] Create Course model (@vaughnws)
 - [ ] Create Grade model (@assignee)
 - [ ] Database/storage implementation (@assignee)
 
