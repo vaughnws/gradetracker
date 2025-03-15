@@ -36,7 +36,6 @@ public class Course {
 
 //SETTERS AND GETTERS
 
-
 // course id
     /**
      * Returns the unique ID of the course.
@@ -120,6 +119,24 @@ public class Course {
      */
     public void setInstructor(String instructor) {
         this.instructor = instructor;
+    }
+
+    //semester
+    /**
+     * Returns the current semester.
+     * 
+     * @return Current semester
+     */
+    public String getSemester() {
+        return semester;
+    }
+    /**
+     * Sets the current semester.
+     * 
+     * @param semester New current semester
+     */
+    public void setSemester(String semester) {
+        this.semester = semester;
     }
 
 }
