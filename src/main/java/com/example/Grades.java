@@ -1,6 +1,7 @@
 package com.example;
 
 import java.util.UUID;
+import java.util.List;
 
 /**
  * Represents a grade entry in the grade tracking application.
@@ -30,8 +31,7 @@ public class Grades {
      * @param dateSubmitted Date when the assignment was submitted
      */
     public Grades(String studentId, String courseId, String assignmentName, double score, 
-        double maxScore, double weight, String dateSubmitted) 
-        {
+                 double maxScore, double weight, String dateSubmitted) {
         this.gradeId = UUID.randomUUID().toString();
         this.studentId = studentId;
         this.courseId = courseId;
@@ -44,7 +44,7 @@ public class Grades {
     }
 
     /**
-     * dont love this, but it works.
+     * Calculate the letter grade based on the percentage score.
      */
     private void calculateLetterGrade() {
         double percentage = (score / maxScore) * 100;
@@ -239,6 +239,6 @@ public class Grades {
 
     @Override
     public String toString() {
-        return assignmentName + ": " + score + "/" + maxScore + " (" + letterGrade + ")";
+        return assignmentName + ": " + score + "/" + maxScore + " (" + letterGrade + ", " + getPercentage() + "%)";
     }
 }

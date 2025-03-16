@@ -116,15 +116,16 @@ public class GradeManager {
     /**
      * Gets all grades for a specific student in a specific course.
      * 
-     * @param studentId ID of the student
+     * @param studentId ID of the student (can be int or String)
      * @param courseId ID of the course
      * @return List of grades for the specified student in the specified course
      */
-    public List<Grades> getGradesForStudentInCourse(String studentId, String courseId) {
+    public List<Grades> getGradesForStudentInCourse(Object studentId, String courseId) {
+        String studentIdStr = String.valueOf(studentId);
         List<Grades> result = new ArrayList<>();
         
         for (Grades grade : allGrades) {
-            if (grade.getStudentId().equals(studentId) && grade.getCourseId().equals(courseId)) {
+            if (grade.getStudentId().equals(studentIdStr) && grade.getCourseId().equals(courseId)) {
                 result.add(grade);
             }
         }

@@ -14,7 +14,6 @@ public class Student
     private String lastName;
     private String fullName;
     private String email; // Added field
-    private String major; // Added field
     private int yearLevel; // Added field
     private List<String> enrolledCourseIds; // Added field
 
@@ -146,15 +145,6 @@ public class Student
     
     public void setEmail(String email) {
         this.email = email;
-    }
-    
-    // Added methods for major
-    public String getMajor() {
-        return this.major;
-    }
-    
-    public void setMajor(String major) {
-        this.major = major;
     }
     
     // Added methods for yearLevel
