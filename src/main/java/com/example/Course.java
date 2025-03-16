@@ -15,7 +15,7 @@ public class Course {
     private int credits; // Number of credit hours
     private String instructor; // Name of the course instructor
     private String semester; // Semester (e.g., "Fall 2025")
-    private String studentId; // IDs of students enrolled in this course
+    private List<String> enrolledStudentIds; // IDs of students enrolled in this course
     
     /**
      * Constructs a new Course with the given details.
@@ -33,11 +33,12 @@ public class Course {
         this.credits = credits;
         this.instructor = instructor;
         this.semester = semester;
+        this.enrolledStudentIds = new ArrayList<>();
     }
 
-//SETTERS AND GETTERS
+    // SETTERS AND GETTERS
 
-// course id
+    // course id
     /**
      * Returns the unique ID of the course.
      * 
@@ -46,7 +47,8 @@ public class Course {
     public String getId() {
         return courseid;
     }
-//course name
+    
+    // course name
     /**
      * Returns the course name.
      * 
@@ -65,7 +67,7 @@ public class Course {
         this.courseName = name;
     }
 
-    //course code
+    // course code
     /**
      * Returns the course code.
      * 
@@ -84,7 +86,7 @@ public class Course {
         this.courseCode = code;
     }
 
-    //credit hours
+    // credit hours
     /**
      * Returns the number of credit hours.
      * 
@@ -103,7 +105,7 @@ public class Course {
         this.credits = credits;
     }
 
-    //course instructor
+    // course instructor
     /**
      * Returns the name of the course instructor.
      * 
@@ -122,7 +124,7 @@ public class Course {
         this.instructor = instructor;
     }
 
-    //semester
+    // semester
     /**
      * Returns the current semester.
      * 
@@ -131,6 +133,7 @@ public class Course {
     public String getSemester() {
         return semester;
     }
+    
     /**
      * Sets the current semester.
      * 
@@ -139,14 +142,16 @@ public class Course {
     public void setSemester(String semester) {
         this.semester = semester;
     }
-        /**
+    
+    /**
      * Add a student to this course.
      * 
      * @param studentId The ID of the student to enroll
      * @return true if the student was successfully enrolled, false if already enrolled
      */
     public boolean enrollStudent(String studentId) {
-        if (!studentId.contains(studentId)) {
+        if (!enrolledStudentIds.contains(studentId)) {
+            enrolledStudentIds.add(studentId);
             return true;
         }
         return false;
@@ -159,10 +164,7 @@ public class Course {
      * @return true if the student was successfully removed, false if not enrolled
      */
     public boolean removeStudent(String studentId) {
-        if (studentId.contains(studentId)) {
-            return true;
-        }
-        return false;
+        return enrolledStudentIds.remove(studentId);
     }
     
     /**
@@ -172,13 +174,30 @@ public class Course {
      * @return true if the student is enrolled, false otherwise
      */
     public boolean isStudentEnrolled(String studentId) {
-        return studentId.contains(studentId);
+        return enrolledStudentIds.contains(studentId);
+    }
+    
+    /**
+     * Get the list of enrolled student IDs.
+     * 
+     * @return List of enrolled student IDs
+     */
+    public List<String> getEnrolledStudentIds() {
+        return new ArrayList<>(enrolledStudentIds);
+    }
+    
+    /**
+     * Get the number of students enrolled in this course.
+     * 
+     * @return Number of enrolled students
+     */
+    public int getEnrollmentCount() {
+        return enrolledStudentIds.size();
     }
 
-    
+    // this is a bit long, but needed for displaying the full student info.
     @Override
     public String toString() {
         return courseCode + " - " + courseName + " (Instructor: " + instructor + ", " + semester + ")";
     }
-
 }

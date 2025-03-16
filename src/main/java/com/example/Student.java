@@ -1,5 +1,11 @@
 package com.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Represents a student in the grade tracking application.
+ */
 public class Student 
 {
     private int studentId;
@@ -7,6 +13,10 @@ public class Student
     private String firstName;
     private String lastName;
     private String fullName;
+    private String email; // Added field
+    private String major; // Added field
+    private int yearLevel; // Added field
+    private List<String> enrolledCourseIds; // Added field
 
     /**
      * The constructor `Student` initializes the fields of the `Student` class with the provided values.
@@ -17,13 +27,13 @@ public class Student
      * @param firstName The `firstName` parameter is a String that represents the first name of a student.
      * @param lastName The `lastName` parameter is a String that represents the last name of a student.
      */
-
     public Student(int studentId, int coursesCompleted, String firstName, String lastName)
     {
         this.studentId = studentId;
         this.coursesCompleted = coursesCompleted;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.enrolledCourseIds = new ArrayList<>(); // Initialize the list
     }
 
     /**
@@ -129,4 +139,74 @@ public class Student
         return this.fullName;
     }
     
+    // Added methods for email
+    public String getEmail() {
+        return this.email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    // Added methods for major
+    public String getMajor() {
+        return this.major;
+    }
+    
+    public void setMajor(String major) {
+        this.major = major;
+    }
+    
+    // Added methods for yearLevel
+    public int getYearLevel() {
+        return this.yearLevel;
+    }
+    
+    public void setYearLevel(int yearLevel) {
+        this.yearLevel = yearLevel;
+    }
+    
+    // Added methods for enrollment management
+    /**
+     * Enrolls the student in a course.
+     * 
+     * @param courseId The ID of the course to enroll in
+     * @return true if enrollment was successful, false if already enrolled
+     */
+    public boolean enrollInCourse(String courseId) {
+        if (!enrolledCourseIds.contains(courseId)) {
+            enrolledCourseIds.add(courseId);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Unenrolls the student from a course.
+     * 
+     * @param courseId The ID of the course to unenroll from
+     * @return true if unenrollment was successful, false if not enrolled
+     */
+    public boolean unenrollFromCourse(String courseId) {
+        return enrolledCourseIds.remove(courseId);
+    }
+    
+    /**
+     * Checks if the student is enrolled in a course.
+     * 
+     * @param courseId The ID of the course to check
+     * @return true if enrolled, false otherwise
+     */
+    public boolean isEnrolledIn(String courseId) {
+        return enrolledCourseIds.contains(courseId);
+    }
+    
+    /**
+     * Gets the list of course IDs the student is enrolled in.
+     * 
+     * @return List of enrolled course IDs
+     */
+    public List<String> getEnrolledCourseIds() {
+        return new ArrayList<>(enrolledCourseIds);
+    }
 }
