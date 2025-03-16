@@ -11,8 +11,8 @@
 ## 📋 Features To Implement
 
 ### Core Functionality
-- [ ] Create Student model (@assignee)
-- [ ] Create Course model (@vaughnws)
+- [x] Create Student model (@Mason)
+- [x] Create Course model (@Vaughn)
 - [ ] Create Grade model (@assignee)
 - [ ] Database/storage implementation (@assignee)
 
