@@ -9,12 +9,13 @@ import java.util.UUID;
  * A course has a unique ID, name, code, credits, and a list of enrolled students.
  */
 public class Course {
-    private final String id; // Unique identifier for the course
-    private String name; // Course name (e.g., "Introduction to Computer Science")
-    private String code; // Course code (e.g., "CS101")
+    private final String courseid; // Unique identifier for the course
+    private String courseName; // Course name (e.g., "Introduction to Computer Science")
+    private String courseCode; // Course code (e.g., "CS101")
     private int credits; // Number of credit hours
     private String instructor; // Name of the course instructor
     private String semester; // Semester (e.g., "Fall 2025")
+    private String studentId; // IDs of students enrolled in this course
     
     /**
      * Constructs a new Course with the given details.
@@ -26,9 +27,9 @@ public class Course {
      * @param semester Current semester
      */
     public Course(String name, String code, int credits, String instructor, String semester) {
-        this.id = UUID.randomUUID().toString(); // Generate a unique ID
-        this.name = name;
-        this.code = code;
+        this.courseid = UUID.randomUUID().toString(); // Generate a unique ID
+        this.courseName = name;
+        this.courseCode = code;
         this.credits = credits;
         this.instructor = instructor;
         this.semester = semester;
@@ -43,7 +44,7 @@ public class Course {
      * @return Course ID
      */
     public String getId() {
-        return id;
+        return courseid;
     }
 //course name
     /**
@@ -52,7 +53,7 @@ public class Course {
      * @return Course name
      */
     public String getName() {
-        return name;
+        return courseName;
     }
 
     /**
@@ -61,7 +62,7 @@ public class Course {
      * @param name New course name
      */
     public void setName(String name) {
-        this.name = name;
+        this.courseName = name;
     }
 
     //course code
@@ -71,7 +72,7 @@ public class Course {
      * @return Course code
      */
     public String getCode() {
-        return code;
+        return courseCode;
     }
 
     /**
@@ -80,7 +81,7 @@ public class Course {
      * @param code New course code
      */
     public void setCode(String code) {
-        this.code = code;
+        this.courseCode = code;
     }
 
     //credit hours
@@ -137,6 +138,47 @@ public class Course {
      */
     public void setSemester(String semester) {
         this.semester = semester;
+    }
+        /**
+     * Add a student to this course.
+     * 
+     * @param studentId The ID of the student to enroll
+     * @return true if the student was successfully enrolled, false if already enrolled
+     */
+    public boolean enrollStudent(String studentId) {
+        if (!studentId.contains(studentId)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Remove a student from this course.
+     * 
+     * @param studentId The ID of the student to remove
+     * @return true if the student was successfully removed, false if not enrolled
+     */
+    public boolean removeStudent(String studentId) {
+        if (studentId.contains(studentId)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if a student is enrolled in this course.
+     * 
+     * @param studentId The ID of the student to check
+     * @return true if the student is enrolled, false otherwise
+     */
+    public boolean isStudentEnrolled(String studentId) {
+        return studentId.contains(studentId);
+    }
+
+    
+    @Override
+    public String toString() {
+        return courseCode + " - " + courseName + " (Instructor: " + instructor + ", " + semester + ")";
     }
 
 }
