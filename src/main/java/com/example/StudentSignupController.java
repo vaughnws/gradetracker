@@ -19,6 +19,7 @@ public class StudentSignupController {
     private StudentManager studentManager;
     private GradeController gradeController;
     private CourseController courseController;
+    private DueDateController dueDateController;
     
     // Student fields
     private TextField studentIdField, firstNameField, lastNameField, emailField;
@@ -53,6 +54,15 @@ public class StudentSignupController {
      */
     public void setCourseController(CourseController courseController) {
         this.courseController = courseController;
+    }
+    
+    /**
+     * Sets the reference to the due date controller.
+     * 
+     * @param dueDateController The due date controller
+     */
+    public void setDueDateController(DueDateController dueDateController) {
+        this.dueDateController = dueDateController;
     }
     
     /**
@@ -204,6 +214,12 @@ public class StudentSignupController {
                 // Update the grades view
                 gradeController.setCurrentStudent(currentStudent);
                 gradeController.refreshGradesView();
+                
+                // Update the due dates view
+                if (dueDateController != null) {
+                    dueDateController.setCurrentStudent(currentStudent);
+                    dueDateController.refreshDueDatesView();
+                }
                 
                 // Switch to courses tab
                 TabPane tabPane = (TabPane) profileBox.getScene().getRoot();

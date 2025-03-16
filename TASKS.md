@@ -13,14 +13,17 @@
 ### Core Functionality
 - [x] Create Student model (@Mason)
 - [x] Create Course model (@Vaughn)
-- [ ] Create Grade model (@assignee)
-- [ ] Database/storage implementation (@assignee)
+- [x] Create Grade model (@assignee)
+- [ ] Database/storage implementation (@assignee) this will take some time...
+- [ ] Create Due Date model
+- [ ] Create a means to parse RRC learn data.
 
 ### UI Implementation
 - [ ] Design main dashboard layout (@assignee)
 - [ ] Create student management view (@assignee)
-- [ ] Create grade entry form (@assignee)
+- [ ] Create grade entry form (@assignee) Need to improve, not user friendly yet.
 - [ ] Create reports/analytics view (@assignee)
+- [ ] Add a due date view for tracking upcoming assignments with list and calendar display
 
 ### Advanced Features
 - [ ] Grade calculation algorithms (@assignee)
@@ -29,7 +32,7 @@
 - [ ] User authentication system (@assignee)
 
 ## 🐛 Bug Fixes
-- [ ] Fix any initial JavaFX/Maven compatibility issues (@assignee)
+- [x] Fix any initial JavaFX/Maven compatibility issues (@assignee)
 
 ## 📝 Documentation
 - [ ] Complete README.md with detailed setup instructions (@assignee)
