@@ -15,7 +15,7 @@
 - [x] Create Course model (@Vaughn)
 - [x] Create Grade model (@assignee)
 - [ ] Database/storage implementation (@assignee) this will take some time...
-- [ ] Create Due Date model
+- [x] Create Due Date model
 - [ ] Create a means to parse RRC learn data.
 
 ### UI Implementation
@@ -23,11 +23,11 @@
 - [ ] Create student management view (@assignee)
 - [ ] Create grade entry form (@assignee) Need to improve, not user friendly yet.
 - [ ] Create reports/analytics view (@assignee)
-- [ ] Add a due date view for tracking upcoming assignments with list and calendar display
+- [x] Add a due date view for tracking upcoming assignments with list and calendar display
 
 ### Advanced Features
-- [ ] Grade calculation algorithms (@assignee)
-- [ ] Data visualization components (@assignee)
+- [ ] Grade calculation algorithms (@assignee) 
+- [ ] Data visualization components (@assignee) need more or better visualization
 - [ ] Export functionality (PDF, CSV) (@assignee)
 - [ ] User authentication system (@assignee)
 

@@ -9,12 +9,17 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.scene.text.Text;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
+import javafx.geometry.Orientation;
 
 /**
  * Controller for the grades management view.
@@ -40,6 +45,10 @@ public class GradeController {
     private Label courseAverageLabel;
     private CheckBox showModulesCheckBox;
     private PieChart gradesPieChart;
+    private StackPane programAverageGauge;
+    private Circle programAverageCircle;
+    private Text programAverageText;
+    private Label programAverageGpaLabel;
     
     // Reference to the current student
     private Student currentStudent = null;
@@ -387,57 +396,278 @@ public void updateGradeDistributionChart(Course course) {
     }
     
     /**
-     * Creates the course selection UI.
-     * 
-     * @return HBox containing the course selection components
-     */
-    private HBox createCourseSelectionUI() {
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER_LEFT);
-        
-        Label selectCourseLabel = new Label("Select Course:");
-        courseComboBox = new ComboBox<>();
-        
-        // Initialize with available courses if courseController is set
-        if (courseController != null) {
-            courseComboBox.setItems(courseController.getCourseObservableList());
-        }
-        
-        // Update the grades list when a course is selected
-        courseComboBox.setOnAction(e -> {
-            Course selectedCourse = courseComboBox.getValue();
-            if (selectedCourse != null && currentStudent != null) {
-                refreshModuleViews(selectedCourse);
-                updateCourseAverageDisplay(selectedCourse);
-                updateGradeDistributionChart(selectedCourse);
-            }
-        });
-        
-        box.getChildren().addAll(selectCourseLabel, courseComboBox);
-        return box;
+ * Creates the course selection UI.
+ * 
+ * @return HBox containing the course selection components
+ */
+private HBox createCourseSelectionUI() {
+    HBox box = new HBox(10);
+    box.setAlignment(Pos.CENTER_LEFT);
+    box.setPadding(new Insets(5));
+    
+    Label selectCourseLabel = new Label("Select Course:");
+    courseComboBox = new ComboBox<>();
+    
+    // Initialize with available courses if courseController is set
+    if (courseController != null) {
+        courseComboBox.setItems(courseController.getCourseObservableList());
     }
     
-    /**
-     * Creates the course average display.
-     * 
-     * @return HBox containing the course average display
-     */
-    private HBox createCourseAverageDisplay() {
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER_LEFT);
+    // Update the grades list when a course is selected
+    courseComboBox.setOnAction(e -> {
+        Course selectedCourse = courseComboBox.getValue();
+        if (selectedCourse != null && currentStudent != null) {
+            refreshModuleViews(selectedCourse);
+            updateCourseAverageDisplay(selectedCourse);
+            updateGradeDistributionChart(selectedCourse);
+        }
+    });
+    
+    // Create a program average visual (mini gauges)
+    VBox programAverageBox = createProgramAverageVisual();
+    
+    box.getChildren().addAll(selectCourseLabel, courseComboBox, new Separator(Orientation.VERTICAL), programAverageBox);
+    HBox.setMargin(programAverageBox, new Insets(0, 0, 0, 20)); // Add margin to the left
+    
+    return box;
+}
+
+/**
+ * Creates a visual representation of the program average.
+ * 
+ * @return VBox containing the program average visual
+ */
+private VBox createProgramAverageVisual() {
+    VBox box = new VBox(5);
+    box.setAlignment(Pos.CENTER);
+    box.setPadding(new Insets(5));
+    box.setMinWidth(150);
+    box.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-radius: 5;");
+    
+    // Title
+    Label titleLabel = new Label("Program Average");
+    titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+    
+    // Create circular gauge for program average
+    StackPane gaugePane = new StackPane();
+    gaugePane.setMinSize(80, 80);
+    gaugePane.setMaxSize(80, 80);
+    
+    // Outer circle (background)
+    Circle outerCircle = new Circle(40);
+    outerCircle.setFill(Color.web("#e0e0e0"));
+    
+    // Inner circle (progress)
+    Circle innerCircle = new Circle(35);
+    innerCircle.setFill(Color.web("#4CAF50")); // Default green
+    
+    // Text showing percentage
+    Text percentText = new Text("N/A");
+    percentText.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+    percentText.setFill(Color.WHITE);
+    
+    // Store references as instance variables to update later
+    programAverageGauge = gaugePane;
+    programAverageCircle = innerCircle;
+    programAverageText = percentText;
+    
+    gaugePane.getChildren().addAll(outerCircle, innerCircle, percentText);
+    
+    // Labels for additional info
+    Label gpaLabel = new Label("GPA: N/A");
+    gpaLabel.setFont(Font.font("Arial", 12));
+    programAverageGpaLabel = gpaLabel;
+    
+    box.getChildren().addAll(titleLabel, gaugePane, gpaLabel);
+    
+    return box;
+}
+
+/**
+ * Updates the program average visual with the current data.
+ */
+private void updateProgramAverageVisual() {
+    if (currentStudent == null || programAverageCircle == null || programAverageText == null) return;
+    
+    // Calculate overall average across all courses
+    double totalWeightedScore = 0;
+    double totalWeight = 0;
+    double totalGradePoints = 0;
+    
+    // Use all grades instead of course averages for program average
+    List<Grades> allGrades = gradeManager.getGradesForStudent(String.valueOf(currentStudent.getStudentId()));
+    double totalScore = 0;
+    double totalMaxScore = 0;
+    
+    for (Grades grade : allGrades) {
+        double weightedScore = grade.getScore() * grade.getWeight();
+        double weightedMaxScore = grade.getMaxScore() * grade.getWeight();
         
-        courseAverageLabel = new Label("Course Average: N/A");
-        courseAverageLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        courseAverageLabel.setTextFill(Color.NAVY);
+        totalScore += weightedScore;
+        totalMaxScore += weightedMaxScore;
         
-        // Create progress bar for visualizing course average
-        courseAverageProgressBar = new ProgressBar(0);
-        courseAverageProgressBar.setPrefWidth(200);
-        courseAverageProgressBar.setStyle("-fx-accent: linear-gradient(to right, #00c6ff, #0072ff);");
+        // For GPA calculation
+        double gradePercent = (grade.getScore() / grade.getMaxScore()) * 100;
+        double gradePoints = 0;
+        if (gradePercent >= 90) gradePoints = 4.0;
+        else if (gradePercent >= 80) gradePoints = 3.0;
+        else if (gradePercent >= 70) gradePoints = 2.0;
+        else if (gradePercent >= 60) gradePoints = 1.0;
         
-        box.getChildren().addAll(courseAverageLabel, courseAverageProgressBar);
-        return box;
+        totalGradePoints += gradePoints * grade.getWeight();
+        totalWeight += grade.getWeight();
     }
+    
+    if (totalWeight > 0 && totalMaxScore > 0) {
+        // Calculate overall percentage
+        double programAverage = (totalScore / totalMaxScore) * 100;
+        double gpa = totalGradePoints / totalWeight;
+        
+        // Update the text
+        programAverageText.setText(String.format("%.1f%%", programAverage));
+        programAverageGpaLabel.setText(String.format("GPA: %.2f", gpa));
+        
+        // Update the color of the gauge based on grade
+        Color gaugeColor;
+        if (programAverage >= 90) {
+            gaugeColor = Color.web("#28a745"); // Green - A
+        } else if (programAverage >= 80) {
+            gaugeColor = Color.web("#17a2b8"); // Blue - B
+        } else if (programAverage >= 70) {
+            gaugeColor = Color.web("#ffc107"); // Yellow - C
+        } else if (programAverage >= 60) {
+            gaugeColor = Color.web("#fd7e14"); // Orange - D
+        } else {
+            gaugeColor = Color.web("#dc3545"); // Red - F
+        }
+        
+        programAverageCircle.setFill(gaugeColor);
+        
+        // Calculate the size of the inner circle based on the percentage
+        double minRadius = 10; // Minimum visible radius
+        double maxRadius = 35; // Maximum radius (same as initialized)
+        double range = maxRadius - minRadius;
+        double scaleFactor = programAverage / 100.0;
+        double newRadius = minRadius + (range * scaleFactor);
+        
+        // Apply the new radius
+        programAverageCircle.setRadius(newRadius);
+    } else {
+        // No grades
+        programAverageText.setText("N/A");
+        programAverageGpaLabel.setText("GPA: N/A");
+        programAverageCircle.setRadius(10); // Minimum size
+        programAverageCircle.setFill(Color.GRAY);
+    }
+}
+    
+/**
+ * Creates the course average display that shows overall GPA across all courses.
+ * 
+ * @return HBox containing the overall average display
+ */
+private HBox createCourseAverageDisplay() {
+    HBox box = new HBox(15);
+    box.setAlignment(Pos.CENTER);
+    box.setPadding(new Insets(10));
+    box.setStyle("-fx-background-color: #f0f8ff; -fx-border-color: #b0c4de; -fx-border-radius: 8; -fx-background-radius: 8;");
+    
+    VBox labelBox = new VBox(5);
+    labelBox.setAlignment(Pos.CENTER_LEFT);
+    
+    courseAverageLabel = new Label("Overall Average: N/A");
+    courseAverageLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+    courseAverageLabel.setTextFill(Color.NAVY);
+    
+    Label gpaLabel = new Label("GPA: N/A");
+    gpaLabel.setFont(Font.font("Arial", 14));
+    gpaLabel.setTextFill(Color.DARKSLATEGRAY);
+    
+    labelBox.getChildren().addAll(courseAverageLabel, gpaLabel);
+    
+    // Create progress bar for visualizing course average
+    courseAverageProgressBar = new ProgressBar(0);
+    courseAverageProgressBar.setPrefWidth(250);
+    courseAverageProgressBar.setPrefHeight(20);
+    courseAverageProgressBar.setStyle("-fx-accent: linear-gradient(to right, #00c6ff, #0072ff);");
+    
+    VBox progressBox = new VBox(5);
+    progressBox.setAlignment(Pos.CENTER);
+    progressBox.getChildren().add(courseAverageProgressBar);
+    
+    box.getChildren().addAll(labelBox, progressBox);
+    HBox.setHgrow(progressBox, Priority.ALWAYS);
+    
+    return box;
+}
+
+/**
+ * Updates the overall average display.
+ */
+public void updateOverallAverageDisplay() {
+    if (currentStudent == null) return;
+    
+    // Calculate overall average across all courses
+    double totalWeightedScore = 0;
+    double totalWeight = 0;
+    int totalCourses = 0;
+    double totalGradePoints = 0;
+    
+    for (Course course : courseManager.getAllCourses()) {
+        if (course.isStudentEnrolled(String.valueOf(currentStudent.getStudentId()))) {
+            double courseAverage = gradeManager.calculateCourseAverage(
+                String.valueOf(currentStudent.getStudentId()),
+                course.getId()
+            );
+            
+            if (courseAverage >= 0) {
+                // For overall percentage average
+                int credits = course.getCredits();
+                totalWeightedScore += courseAverage * credits;
+                totalWeight += credits;
+                
+                // For GPA calculation
+                double courseGradePoints = 0;
+                if (courseAverage >= 90) courseGradePoints = 4.0;
+                else if (courseAverage >= 80) courseGradePoints = 3.0;
+                else if (courseAverage >= 70) courseGradePoints = 2.0;
+                else if (courseAverage >= 60) courseGradePoints = 1.0;
+                
+                totalGradePoints += courseGradePoints * credits;
+                totalCourses++;
+            }
+        }
+    }
+    
+    if (totalWeight > 0) {
+        double overallAverage = totalWeightedScore / totalWeight;
+        double gpa = totalGradePoints / totalWeight;
+        
+        courseAverageLabel.setText(String.format("Overall Average: %.1f%%", overallAverage));
+        ((Label)((VBox)courseAverageLabel.getParent()).getChildren().get(1)).setText(String.format("GPA: %.2f", gpa));
+        courseAverageProgressBar.setProgress(overallAverage / 100.0);
+        
+        // Set color based on grade
+        String color;
+        if (overallAverage >= 90) {
+            color = "-fx-accent: linear-gradient(to right, #00E676, #00C853);"; // Green
+        } else if (overallAverage >= 80) {
+            color = "-fx-accent: linear-gradient(to right, #00B0FF, #0091EA);"; // Blue
+        } else if (overallAverage >= 70) {
+            color = "-fx-accent: linear-gradient(to right, #FFEE58, #FDD835);"; // Yellow
+        } else if (overallAverage >= 60) {
+            color = "-fx-accent: linear-gradient(to right, #FFA726, #FB8C00);"; // Orange
+        } else {
+            color = "-fx-accent: linear-gradient(to right, #FF5252, #D50000);"; // Red
+        }
+        
+        courseAverageProgressBar.setStyle(color);
+    } else {
+        courseAverageLabel.setText("Overall Average: N/A");
+        ((Label)((VBox)courseAverageLabel.getParent()).getChildren().get(1)).setText("GPA: N/A");
+        courseAverageProgressBar.setProgress(0);
+    }
+}
     
     /**
      * Updates the course average display.
@@ -513,31 +743,34 @@ public void updateGradeDistributionChart(Course course) {
         }
     }
     
-    /**
-     * Refreshes the grades view after a student signs in.
-     */
-    public void refreshGradesView() {
-        if (gradesPane == null) return;
+/**
+ * Refreshes the grades view after a student signs in.
+ */
+public void refreshGradesView() {
+    if (gradesPane == null) return;
+    
+    // Update course combo box items if courses have changed
+    if (courseController != null) {
+        courseComboBox.setItems(courseController.getCourseObservableList());
+    }
+    
+    // Switch view based on logged-in status
+    if (currentStudent == null) {
+        gradesPane.setCenter(notLoggedInBox);
+    } else {
+        gradesPane.setCenter(mainScrollPane);
         
-        // Update course combo box items if courses have changed
-        if (courseController != null) {
-            courseComboBox.setItems(courseController.getCourseObservableList());
-        }
+        // Calculate and update the overall average
+        updateOverallAverageDisplay();
         
-        // Switch view based on logged-in status
-        if (currentStudent == null) {
-            gradesPane.setCenter(notLoggedInBox);
-        } else {
-            gradesPane.setCenter(mainScrollPane);
-            
-            // If a course is selected, refresh the module views
-            if (courseComboBox.getValue() != null) {
-                refreshModuleViews(courseComboBox.getValue());
-                updateCourseAverageDisplay(courseComboBox.getValue());
-                updateGradeDistributionChart(courseComboBox.getValue());
-            }
+        // If a course is selected, refresh the module views
+        if (courseComboBox.getValue() != null) {
+            refreshModuleViews(courseComboBox.getValue());
+            updateCourseAverageDisplay(courseComboBox.getValue());
+            updateGradeDistributionChart(courseComboBox.getValue());
         }
     }
+}
     
     /**
      * Gets the module content box.
