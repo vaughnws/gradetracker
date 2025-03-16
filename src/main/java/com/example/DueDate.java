@@ -3,6 +3,7 @@ package com.example;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import javafx.collections.*;
 
 /**
  * Represents a due date for an assignment in the grade tracking application.
@@ -11,6 +12,8 @@ public class DueDate implements Comparable<DueDate> {
     private final String dueDateId;
     private String courseId;
     private String courseName; // For easier display
+    private String moduleId; // Added field for module
+    private String moduleName; // Added module name for display
     private String assignmentName;
     private String description;
     private LocalDate dueDate;
@@ -37,6 +40,8 @@ public class DueDate implements Comparable<DueDate> {
         this.dueDate = dueDate;
         this.completed = false;
         this.priority = priority;
+        this.moduleId = ""; // Default empty module ID
+        this.moduleName = "General"; // Default module name
     }
     
     /**
@@ -82,6 +87,42 @@ public class DueDate implements Comparable<DueDate> {
      */
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+    
+    /**
+     * Gets the ID of the associated module.
+     * 
+     * @return Module ID
+     */
+    public String getModuleId() {
+        return moduleId;
+    }
+    
+    /**
+     * Sets the ID of the associated module.
+     * 
+     * @param moduleId New module ID
+     */
+    public void setModuleId(String moduleId) {
+        this.moduleId = moduleId;
+    }
+    
+    /**
+     * Gets the name of the associated module.
+     * 
+     * @return Module name
+     */
+    public String getModuleName() {
+        return moduleName;
+    }
+    
+    /**
+     * Sets the name of the associated module.
+     * 
+     * @param moduleName New module name
+     */
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
     
     /**
@@ -244,6 +285,7 @@ public class DueDate implements Comparable<DueDate> {
     
     @Override
     public String toString() {
-        return getStatus() + ": " + assignmentName + " (" + courseName + ") - " + getDueDateFormatted();
+        String moduleInfo = moduleName != null && !moduleName.isEmpty() ? " [" + moduleName + "]" : "";
+        return getStatus() + ": " + assignmentName + moduleInfo + " (" + courseName + ") - " + getDueDateFormatted();
     }
 }

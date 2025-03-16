@@ -2,6 +2,7 @@ package com.example;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.collections.*;
 
 /**
  * Helper class for common UI operations.

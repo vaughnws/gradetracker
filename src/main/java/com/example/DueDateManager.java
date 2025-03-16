@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import javafx.collections.*;
 
 /**
  * Manages the collection of due dates in the application.
@@ -118,6 +118,25 @@ public class DueDateManager {
     }
     
     /**
+     * Gets all due dates for a specific module.
+     * 
+     * @param moduleId ID of the module
+     * @return List of due dates for the specified module
+     */
+    public List<DueDate> getDueDatesForModule(String moduleId) {
+        List<DueDate> result = new ArrayList<>();
+        
+        for (DueDate dueDate : dueDates) {
+            if (dueDate.getModuleId().equals(moduleId)) {
+                result.add(dueDate);
+            }
+        }
+        
+        Collections.sort(result);
+        return result;
+    }
+    
+    /**
      * Gets all due dates for a specific date range.
      * 
      * @param startDate Start date of the range
@@ -153,6 +172,33 @@ public class DueDateManager {
         for (Course course : courseManager.getAllCourses()) {
             if (course.isStudentEnrolled(studentIdStr)) {
                 result.addAll(getDueDatesForCourse(course.getId()));
+            }
+        }
+        
+        Collections.sort(result);
+        return result;
+    }
+    
+    /**
+     * Gets all due dates for a specific student in a specific module.
+     * 
+     * @param studentId The ID of the student
+     * @param moduleId The ID of the module
+     * @param courseManager The course manager to check enrollment
+     * @return List of due dates for the specified module the student is enrolled in
+     */
+    public List<DueDate> getDueDatesForStudentInModule(int studentId, String moduleId, CourseManager courseManager) {
+        List<DueDate> result = new ArrayList<>();
+        String studentIdStr = String.valueOf(studentId);
+        
+        // Get all due dates for the specified module
+        List<DueDate> moduleDueDates = getDueDatesForModule(moduleId);
+        
+        // Filter for only courses the student is enrolled in
+        for (DueDate dueDate : moduleDueDates) {
+            Course course = courseManager.getCourseById(dueDate.getCourseId());
+            if (course != null && course.isStudentEnrolled(studentIdStr)) {
+                result.add(dueDate);
             }
         }
         

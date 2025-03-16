@@ -5,13 +5,15 @@ import java.util.List;
 
 /**
  * Represents a grade entry in the grade tracking application.
- * Each grade is associated with a student and a course.
+ * Each grade is associated with a student, course, and module.
  */
 public class Grades {
     private final String gradeId;
     private String studentId;
     private String courseId;
     private String assignmentName;
+    private String moduleId; // Added field for module
+    private String moduleName; // Added module name for display
     private double score;
     private double maxScore;
     private double weight;
@@ -25,22 +27,43 @@ public class Grades {
      * @param studentId ID of the student who received this grade
      * @param courseId ID of the course this grade belongs to
      * @param assignmentName Name of the assignment
+     * @param moduleId ID of the module this assignment belongs to
+     * @param moduleName Name of the module this assignment belongs to
      * @param score Numeric score received
      * @param maxScore Maximum possible score
      * @param weight Weight of this assignment in the overall course grade
      * @param dateSubmitted Date when the assignment was submitted
      */
-    public Grades(String studentId, String courseId, String assignmentName, double score, 
-                 double maxScore, double weight, String dateSubmitted) {
+    public Grades(String studentId, String courseId, String assignmentName, String moduleId, String moduleName,
+                 double score, double maxScore, double weight, String dateSubmitted) {
         this.gradeId = UUID.randomUUID().toString();
         this.studentId = studentId;
         this.courseId = courseId;
         this.assignmentName = assignmentName;
+        this.moduleId = moduleId;
+        this.moduleName = moduleName;
         this.score = score;
         this.maxScore = maxScore;
         this.weight = weight;
         this.dateSubmitted = dateSubmitted;
+        this.comments = "";
         this.calculateLetterGrade();
+    }
+
+    /**
+     * Constructs a new Grade entry with the given details (without module for backward compatibility).
+     * 
+     * @param studentId ID of the student who received this grade
+     * @param courseId ID of the course this grade belongs to
+     * @param assignmentName Name of the assignment
+     * @param score Numeric score received
+     * @param maxScore Maximum possible score
+     * @param weight Weight of this assignment in the overall course grade
+     * @param dateSubmitted Date when the assignment was submitted
+     */
+    public Grades(String studentId, String courseId, String assignmentName, 
+                 double score, double maxScore, double weight, String dateSubmitted) {
+        this(studentId, courseId, assignmentName, "", "General", score, maxScore, weight, dateSubmitted);
     }
 
     /**
@@ -125,6 +148,42 @@ public class Grades {
      */
     public void setAssignmentName(String assignmentName) {
         this.assignmentName = assignmentName;
+    }
+
+    /**
+     * Returns the ID of the module this grade belongs to.
+     * 
+     * @return Module ID
+     */
+    public String getModuleId() {
+        return moduleId;
+    }
+
+    /**
+     * Sets the module ID.
+     * 
+     * @param moduleId New module ID
+     */
+    public void setModuleId(String moduleId) {
+        this.moduleId = moduleId;
+    }
+
+    /**
+     * Returns the name of the module this grade belongs to.
+     * 
+     * @return Module name
+     */
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    /**
+     * Sets the module name.
+     * 
+     * @param moduleName New module name
+     */
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     /**
@@ -239,6 +298,6 @@ public class Grades {
 
     @Override
     public String toString() {
-        return assignmentName + ": " + score + "/" + maxScore + " (" + letterGrade + ", " + getPercentage() + "%)";
+        return assignmentName + " (" + moduleName + "): " + score + "/" + maxScore + " (" + letterGrade + ", " + String.format("%.1f", getPercentage()) + "%)";
     }
 }

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.collections.*;
 
 /**
  * Helper class for managing dialogs related to due dates.
@@ -17,7 +18,9 @@ import java.util.List;
 public class DueDateDialogHelper {
     private DueDateManager dueDateManager;
     private GradeManager gradeManager;
+    private ModuleManager moduleManager;
     private DueDateController parentController;
+    private GradeController gradeController; // Direct reference to grade controller
     private Student currentStudent;
     
     /**
@@ -31,6 +34,7 @@ public class DueDateDialogHelper {
         this.dueDateManager = dueDateManager;
         this.gradeManager = gradeManager;
         this.parentController = parentController;
+        this.moduleManager = new ModuleManager();
     }
     
     /**
@@ -43,30 +47,75 @@ public class DueDateDialogHelper {
     }
     
     /**
+     * Sets the module manager.
+     * 
+     * @param moduleManager The module manager
+     */
+    public void setModuleManager(ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+    
+    /**
+     * Sets the grade controller.
+     * 
+     * @param gradeController The grade controller
+     */
+    public void setGradeController(GradeController gradeController) {
+        this.gradeController = gradeController;
+    }
+    
+    /**
      * Shows a dialog to add a new due date.
      */
     public void showAddDueDateDialog() {
+        // Ensure modules are refreshed before showing the dialog
+        refreshModulesForAllCourses();
+        
         DueDate newDueDate = new DueDate("", "", "", "", LocalDate.now().plusDays(7), "Medium");
+        newDueDate.setModuleId(""); // Initialize moduleId
+        newDueDate.setModuleName(""); // Initialize moduleName
         
         if (showDueDateDialog(newDueDate, "Add New Due Date")) {
             dueDateManager.addDueDate(newDueDate);
             
             // Create corresponding grade entry if grade manager exists
             if (gradeManager != null && currentStudent != null) {
-                // Create a new grade with default values
-                Grades newGrade = new Grades(
-                    String.valueOf(currentStudent.getStudentId()),
-                    newDueDate.getCourseId(),
-                    newDueDate.getAssignmentName(),
-                    0.0,  // Default score
-                    100.0, // Default max score
-                    10.0,  // Default weight
-                    newDueDate.getDueDateFormatted()
-                );
+                // Check if a grade already exists for this assignment/module combination
+                boolean gradeExists = false;
+                for (Grades grade : gradeManager.getAllGrades()) {
+                    if (grade.getStudentId().equals(String.valueOf(currentStudent.getStudentId())) && 
+                        grade.getCourseId().equals(newDueDate.getCourseId()) &&
+                        grade.getModuleId().equals(newDueDate.getModuleId()) &&
+                        grade.getAssignmentName().equals(newDueDate.getAssignmentName())) {
+                        gradeExists = true;
+                        break;
+                    }
+                }
                 
-                gradeManager.addGrade(newGrade);
+                // Create a new grade only if one doesn't exist
+                if (!gradeExists) {
+                    Grades newGrade = new Grades(
+                        String.valueOf(currentStudent.getStudentId()),
+                        newDueDate.getCourseId(),
+                        newDueDate.getAssignmentName(),
+                        newDueDate.getModuleId(),
+                        newDueDate.getModuleName(),
+                        0.0,  // Default score
+                        100.0, // Default max score
+                        10.0,  // Default weight
+                        newDueDate.getDueDateFormatted()
+                    );
+                    
+                    gradeManager.addGrade(newGrade);
+                    
+                    // Directly refresh the grades view if possible
+                    if (gradeController != null) {
+                        gradeController.refreshGradesView();
+                    }
+                }
             }
             
+            // Refresh due dates view
             parentController.refreshDueDatesView();
         }
     }
@@ -77,8 +126,53 @@ public class DueDateDialogHelper {
      * @param dueDate The due date to edit
      */
     public void showEditDueDateDialog(DueDate dueDate) {
+        // Ensure modules are refreshed before showing the dialog
+        refreshModulesForAllCourses();
+        
+        // Store the original assignment name and module ID for later comparison
+        String originalAssignmentName = dueDate.getAssignmentName();
+        String originalModuleId = dueDate.getModuleId();
+        
         if (showDueDateDialog(dueDate, "Edit Due Date")) {
+            // If the assignment name or module changed, update corresponding grade
+            if (!originalAssignmentName.equals(dueDate.getAssignmentName()) || 
+                !originalModuleId.equals(dueDate.getModuleId())) {
+                
+                // Find and update corresponding grade if it exists
+                if (gradeManager != null && currentStudent != null) {
+                    for (Grades grade : gradeManager.getAllGrades()) {
+                        if (grade.getStudentId().equals(String.valueOf(currentStudent.getStudentId())) && 
+                            grade.getCourseId().equals(dueDate.getCourseId()) &&
+                            grade.getAssignmentName().equals(originalAssignmentName)) {
+                            
+                            // Update the grade with new assignment name and module
+                            grade.setAssignmentName(dueDate.getAssignmentName());
+                            grade.setModuleId(dueDate.getModuleId());
+                            grade.setModuleName(dueDate.getModuleName());
+                            break;
+                        }
+                    }
+                    
+                    // Directly refresh the grades view if possible
+                    if (gradeController != null) {
+                        gradeController.refreshGradesView();
+                    }
+                }
+            }
+            
             parentController.refreshDueDatesView();
+        }
+    }
+    
+    /**
+     * Refreshes modules for all courses.
+     */
+    private void refreshModulesForAllCourses() {
+        if (moduleManager == null) return;
+        
+        // For each course, ensure modules are initialized
+        for (Course course : parentController.getCourseManager().getAllCourses()) {
+            moduleManager.initializeModulesForCourse(course.getId());
         }
     }
     
@@ -107,9 +201,15 @@ public class DueDateDialogHelper {
         
         // Create form fields
         ComboBox<Course> courseCombo = new ComboBox<>();
-        courseCombo.setItems(javafx.collections.FXCollections.observableArrayList(
+        
+        // Populate with fresh course list
+        ObservableList<Course> courseList = FXCollections.observableArrayList(
             parentController.getCourseManager().getAllCourses()
-        ));
+        );
+        courseCombo.setItems(courseList);
+        
+        // Module ComboBox
+        ComboBox<CourseModule> moduleCombo = new ComboBox<>();
         
         // Filter to only show enrolled courses
         if (currentStudent != null) {
@@ -127,6 +227,43 @@ public class DueDateDialogHelper {
                 }
             }
         }
+        
+        // If a course is selected, populate modules
+        if (courseCombo.getValue() != null) {
+            Course course = courseCombo.getValue();
+            moduleManager.initializeModulesForCourse(course.getId());
+            List<CourseModule> modules = moduleManager.getModulesForCourse(course.getId());
+            moduleCombo.setItems(FXCollections.observableArrayList(modules));
+            
+            // Select the current module if it exists
+            if (!dueDate.getModuleId().isEmpty()) {
+                for (CourseModule module : modules) {
+                    if (module.getModuleId().equals(dueDate.getModuleId())) {
+                        moduleCombo.setValue(module);
+                        break;
+                    }
+                }
+            }
+            
+            // If no module is selected, select the first one if available
+            if (moduleCombo.getValue() == null && !modules.isEmpty()) {
+                moduleCombo.setValue(modules.get(0));
+            }
+        }
+        
+        // Update module dropdown when course changes
+        courseCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                // Make sure modules are initialized
+                moduleManager.initializeModulesForCourse(newVal.getId());
+                List<CourseModule> modules = moduleManager.getModulesForCourse(newVal.getId());
+                moduleCombo.setItems(FXCollections.observableArrayList(modules));
+                
+                if (!modules.isEmpty()) {
+                    moduleCombo.setValue(modules.get(0));
+                }
+            }
+        });
         
         TextField assignmentField = new TextField(dueDate.getAssignmentName());
         DatePicker datePicker = new DatePicker(dueDate.getDueDate());
@@ -146,19 +283,22 @@ public class DueDateDialogHelper {
         grid.add(new Label("Course:"), 0, 0);
         grid.add(courseCombo, 1, 0);
         
-        grid.add(new Label("Assignment:"), 0, 1);
-        grid.add(assignmentField, 1, 1);
+        grid.add(new Label("Module:"), 0, 1);
+        grid.add(moduleCombo, 1, 1);
         
-        grid.add(new Label("Due Date:"), 0, 2);
-        grid.add(datePicker, 1, 2);
+        grid.add(new Label("Assignment:"), 0, 2);
+        grid.add(assignmentField, 1, 2);
         
-        grid.add(new Label("Priority:"), 0, 3);
-        grid.add(priorityCombo, 1, 3);
+        grid.add(new Label("Due Date:"), 0, 3);
+        grid.add(datePicker, 1, 3);
         
-        grid.add(new Label("Description:"), 0, 4);
-        grid.add(descriptionArea, 1, 4);
+        grid.add(new Label("Priority:"), 0, 4);
+        grid.add(priorityCombo, 1, 4);
         
-        grid.add(completedCheckBox, 1, 5);
+        grid.add(new Label("Description:"), 0, 5);
+        grid.add(descriptionArea, 1, 5);
+        
+        grid.add(completedCheckBox, 1, 6);
         
         // Enable/disable save button based on input validation
         Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
@@ -169,6 +309,8 @@ public class DueDateDialogHelper {
             boolean isValid = courseCombo.getValue() != null && 
                              !assignmentField.getText().trim().isEmpty() && 
                              datePicker.getValue() != null;
+            
+            // Module is optional - it can be null for general assignments
             saveButton.setDisable(!isValid);
         };
         
@@ -190,8 +332,20 @@ public class DueDateDialogHelper {
         if (dialog.showAndWait().get() == saveButtonType) {
             // Update due date with form values
             Course selectedCourse = courseCombo.getValue();
+            CourseModule selectedModule = moduleCombo.getValue();
+            
             dueDate.setCourseId(selectedCourse.getId());
             dueDate.setCourseName(selectedCourse.getName());
+            
+            // Set module info if a module is selected
+            if (selectedModule != null) {
+                dueDate.setModuleId(selectedModule.getModuleId());
+                dueDate.setModuleName(selectedModule.getModuleName());
+            } else {
+                dueDate.setModuleId("");
+                dueDate.setModuleName("General");
+            }
+            
             dueDate.setAssignmentName(assignmentField.getText().trim());
             dueDate.setDueDate(datePicker.getValue());
             dueDate.setPriority(priorityCombo.getValue());
@@ -223,42 +377,34 @@ public class DueDateDialogHelper {
         grid.add(new Label("Course:"), 0, 0);
         grid.add(new Label(dueDate.getCourseName()), 1, 0);
         
-        grid.add(new Label("Due Date:"), 0, 1);
-        grid.add(new Label(dueDate.getDueDateFormatted()), 1, 1);
+        grid.add(new Label("Module:"), 0, 1);
+        grid.add(new Label(dueDate.getModuleName()), 1, 1);
         
-        grid.add(new Label("Status:"), 0, 2);
+        grid.add(new Label("Due Date:"), 0, 2);
+        grid.add(new Label(dueDate.getDueDateFormatted()), 1, 2);
+        
+        grid.add(new Label("Status:"), 0, 3);
         Label statusLabel = new Label(dueDate.getStatus());
         statusLabel.setStyle("-fx-text-fill: " + dueDate.getStatusColor() + ";");
-        grid.add(statusLabel, 1, 2);
+        grid.add(statusLabel, 1, 3);
         
-        grid.add(new Label("Priority:"), 0, 3);
-        grid.add(new Label(dueDate.getPriority()), 1, 3);
+        grid.add(new Label("Priority:"), 0, 4);
+        grid.add(new Label(dueDate.getPriority()), 1, 4);
         
-        grid.add(new Label("Description:"), 0, 4);
+        grid.add(new Label("Description:"), 0, 5);
         TextArea descArea = new TextArea(dueDate.getDescription());
         descArea.setEditable(false);
         descArea.setPrefRowCount(3);
-        grid.add(descArea, 1, 4);
+        grid.add(descArea, 1, 5);
         
         // Add button to edit grade if assignment is completed
         if (dueDate.isCompleted() && gradeManager != null && currentStudent != null) {
             Button editGradeButton = new Button("Edit Grade");
-            grid.add(editGradeButton, 1, 5);
+            grid.add(editGradeButton, 1, 6);
             
             editGradeButton.setOnAction(e -> {
                 // Find the corresponding grade
-                List<Grades> courseGrades = gradeManager.getGradesForStudentInCourse(
-                    currentStudent.getStudentId(), 
-                    dueDate.getCourseId()
-                );
-                
-                Grades matchingGrade = null;
-                for (Grades grade : courseGrades) {
-                    if (grade.getAssignmentName().equals(dueDate.getAssignmentName())) {
-                        matchingGrade = grade;
-                        break;
-                    }
-                }
+                Grades matchingGrade = findMatchingGrade(dueDate);
                 
                 if (matchingGrade != null) {
                     // Show grade editing dialog
@@ -269,6 +415,8 @@ public class DueDateDialogHelper {
                         String.valueOf(currentStudent.getStudentId()),
                         dueDate.getCourseId(),
                         dueDate.getAssignmentName(),
+                        dueDate.getModuleId(),
+                        dueDate.getModuleName(),
                         0.0,  // Default score
                         100.0, // Default max score
                         10.0,  // Default weight
@@ -302,6 +450,11 @@ public class DueDateDialogHelper {
                 }
                 
                 parentController.refreshDueDatesView();
+                
+                // Also refresh the grades view
+                if (gradeController != null) {
+                    gradeController.refreshGradesView();
+                }
             } else if (dialogButton == editButton) {
                 showEditDueDateDialog(dueDate);
             }
@@ -314,32 +467,46 @@ public class DueDateDialogHelper {
     }
     
     /**
+     * Finds a grade matching the given due date.
+     *
+     * @param dueDate The due date to match
+     * @return The matching grade, or null if not found
+     */
+    private Grades findMatchingGrade(DueDate dueDate) {
+        if (gradeManager == null || currentStudent == null) {
+            return null;
+        }
+        
+        for (Grades grade : gradeManager.getAllGrades()) {
+            if (grade.getStudentId().equals(String.valueOf(currentStudent.getStudentId())) &&
+                grade.getCourseId().equals(dueDate.getCourseId()) &&
+                grade.getAssignmentName().equals(dueDate.getAssignmentName())) {
+                return grade;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
      * Prompts the user to enter a grade for a completed assignment.
      * 
      * @param dueDate The due date for the completed assignment
      */
     public void promptForGradeEntry(DueDate dueDate) {
         // Find if a grade already exists for this assignment
-        List<Grades> courseGrades = gradeManager.getGradesForStudentInCourse(
-            currentStudent.getStudentId(), 
-            dueDate.getCourseId()
-        );
+        Grades matchingGrade = findMatchingGrade(dueDate);
         
-        boolean gradeExists = false;
-        for (Grades grade : courseGrades) {
-            if (grade.getAssignmentName().equals(dueDate.getAssignmentName())) {
-                gradeExists = true;
-                showGradeEditDialog(grade);
-                break;
-            }
-        }
-        
-        if (!gradeExists) {
+        if (matchingGrade != null) {
+            showGradeEditDialog(matchingGrade);
+        } else {
             // Create a new grade
             Grades newGrade = new Grades(
                 String.valueOf(currentStudent.getStudentId()),
                 dueDate.getCourseId(),
                 dueDate.getAssignmentName(),
+                dueDate.getModuleId(),
+                dueDate.getModuleName(),
                 0.0,  // Default score
                 100.0, // Default max score
                 10.0,  // Default weight
@@ -386,7 +553,7 @@ public class DueDateDialogHelper {
                     setGraphic(null);
                     setStyle("");
                 } else {
-                    setText(dueDate.getAssignmentName() + " - " + dueDate.getCourseName());
+                    setText(dueDate.getAssignmentName() + " (" + dueDate.getModuleName() + ") - " + dueDate.getCourseName());
                     
                     // Set text color based on status
                     setTextFill(javafx.scene.paint.Color.web(dueDate.getStatusColor()));
@@ -444,6 +611,23 @@ public class DueDateDialogHelper {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
         
+        // Course and module information (non-editable)
+        Label courseLabel = new Label("Course:");
+        TextField courseField = new TextField();
+        courseField.setEditable(false);
+        
+        // Find course name
+        for (Course course : parentController.getCourseManager().getAllCourses()) {
+            if (course.getId().equals(grade.getCourseId())) {
+                courseField.setText(course.getName());
+                break;
+            }
+        }
+        
+        Label moduleLabel = new Label("Module:");
+        TextField moduleField = new TextField(grade.getModuleName());
+        moduleField.setEditable(false);
+        
         // Create form fields
         TextField scoreField = new TextField(String.valueOf(grade.getScore()));
         TextField maxScoreField = new TextField(String.valueOf(grade.getMaxScore()));
@@ -452,17 +636,23 @@ public class DueDateDialogHelper {
         commentsArea.setPrefRowCount(3);
         
         // Add fields to grid
-        grid.add(new Label("Score:"), 0, 0);
-        grid.add(scoreField, 1, 0);
+        grid.add(courseLabel, 0, 0);
+        grid.add(courseField, 1, 0);
         
-        grid.add(new Label("Max Score:"), 0, 1);
-        grid.add(maxScoreField, 1, 1);
+        grid.add(moduleLabel, 0, 1);
+        grid.add(moduleField, 1, 1);
         
-        grid.add(new Label("Weight (%):"), 0, 2);
-        grid.add(weightField, 1, 2);
+        grid.add(new Label("Score:"), 0, 2);
+        grid.add(scoreField, 1, 2);
         
-        grid.add(new Label("Comments:"), 0, 3);
-        grid.add(commentsArea, 1, 3);
+        grid.add(new Label("Max Score:"), 0, 3);
+        grid.add(maxScoreField, 1, 3);
+        
+        grid.add(new Label("Weight (%):"), 0, 4);
+        grid.add(weightField, 1, 4);
+        
+        grid.add(new Label("Comments:"), 0, 5);
+        grid.add(commentsArea, 1, 5);
         
         // Enable/disable save button based on input validation
         Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
@@ -509,16 +699,27 @@ public class DueDateDialogHelper {
                 
                 // Show success message
                 UIHelper.showAlert("Success", "Grade updated successfully!");
+                
+                // Refresh views
+                parentController.refreshDueDatesView();
+                
+                // Also refresh the grades view
+                if (gradeController != null) {
+                    gradeController.refreshGradesView();
+                }
+                
             } catch (NumberFormatException e) {
                 UIHelper.showAlert("Error", "Please enter valid numeric values.");
             }
         }
     }
 
-
-public void setCurrentStudent(Student student) {
-
-    this.currentStudent = student;
-}
-
+    /**
+     * Sets the current student.
+     * 
+     * @param student The current student
+     */
+    public void setCurrentStudent(Student student) {
+        this.currentStudent = student;
+    }
 }

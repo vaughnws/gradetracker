@@ -93,6 +93,9 @@ public class CourseController {
         Button addButton = new Button("Add Course");
         addButton.setOnAction(e -> addCourse());
         
+        Button refreshButton = new Button("Refresh");
+        refreshButton.setOnAction(e -> refreshCourseView());
+        
         enrollButton = new Button("Enroll in Selected Course");
         enrollButton.setOnAction(e -> enrollInCourse());
         enrollButton.setDisable(true); // Initially disabled until user signs up
@@ -112,7 +115,7 @@ public class CourseController {
         formGrid.add(instructorLabel, 0, 2);
         formGrid.add(instructorField, 1, 2);
         
-        HBox buttonBox = new HBox(10, addButton, enrollButton);
+        HBox buttonBox = new HBox(10, addButton, enrollButton, refreshButton);
         formGrid.add(buttonBox, 1, 3);
         
         // Assemble layout
@@ -121,6 +124,14 @@ public class CourseController {
         coursePane.setBottom(formGrid);
         
         return coursePane;
+    }
+    
+    /**
+     * Refreshes the course view.
+     */
+    public void refreshCourseView() {
+        courseObservableList.clear();
+        courseObservableList.addAll(courseManager.getAllCourses());
     }
     
     /**
@@ -143,8 +154,7 @@ public class CourseController {
         if (!name.isEmpty() && !code.isEmpty()) {
             Course newCourse = new Course(name, code, 3, instructor, "Spring 2025");
             courseManager.addCourse(newCourse);
-            courseObservableList.clear();
-            courseObservableList.addAll(courseManager.getAllCourses());
+            refreshCourseView(); // Use the refresh method
             nameField.clear();
             codeField.clear();
             instructorField.clear();

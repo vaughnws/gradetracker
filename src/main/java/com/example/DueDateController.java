@@ -27,8 +27,10 @@ public class DueDateController {
     private DueDateManager dueDateManager;
     private CourseManager courseManager;
     private GradeManager gradeManager;
+    private ModuleManager moduleManager; // Added module manager
     private CourseController courseController;
     private StudentSignupController studentSignupController;
+    private GradeController gradeController; // NEW: Direct reference to grade controller
     private DueDateDialogHelper dialogHelper;
     
     private BorderPane dueDatesPane;
@@ -44,18 +46,43 @@ public class DueDateController {
     
     // Reference to the current student
     private Student currentStudent = null;
+
+    /**
+     * Gets the dialog helper instance.
+     * 
+     * @return The dialog helper
+     */
+    public DueDateDialogHelper getDialogHelper() {
+        return dialogHelper;
+    }
     
     /**
      * Constructs a new DueDateController.
      * 
      * @param dueDateManager The due date manager
      * @param courseManager The course manager
+     * @param moduleManager The module manager
      */
-    public DueDateController(DueDateManager dueDateManager, CourseManager courseManager) {
+    public DueDateController(DueDateManager dueDateManager, CourseManager courseManager, ModuleManager moduleManager) {
         this.dueDateManager = dueDateManager;
         this.courseManager = courseManager;
+        this.moduleManager = moduleManager;
         this.dueDatesObservableList = FXCollections.observableArrayList();
         this.currentYearMonth = YearMonth.now();
+        
+        // Initialize dialog helper
+        this.dialogHelper = new DueDateDialogHelper(dueDateManager, null, this);
+        this.dialogHelper.setModuleManager(moduleManager);
+    }
+    
+    /**
+     * Constructs a new DueDateController (for backward compatibility).
+     * 
+     * @param dueDateManager The due date manager
+     * @param courseManager The course manager
+     */
+    public DueDateController(DueDateManager dueDateManager, CourseManager courseManager) {
+        this(dueDateManager, courseManager, new ModuleManager());
     }
     
     /**
@@ -77,6 +104,20 @@ public class DueDateController {
     }
     
     /**
+     * Sets the reference to the grade controller.
+     * 
+     * @param gradeController The grade controller
+     */
+    public void setGradeController(GradeController gradeController) {
+        this.gradeController = gradeController;
+        
+        // Pass the reference to the dialog helper
+        if (dialogHelper != null) {
+            dialogHelper.setGradeController(gradeController);
+        }
+    }
+    
+    /**
      * Sets the reference to the grade manager.
      * 
      * @param gradeManager The grade manager
@@ -84,13 +125,27 @@ public class DueDateController {
     public void setGradeManager(GradeManager gradeManager) {
         this.gradeManager = gradeManager;
         
-        // Initialize the dialog helper if not already created
+        // Update the dialog helper
         if (dialogHelper == null) {
             dialogHelper = new DueDateDialogHelper(dueDateManager, gradeManager, this);
+            dialogHelper.setModuleManager(moduleManager);
+            if (gradeController != null) {
+                dialogHelper.setGradeController(gradeController);
+            }
         } else {
             dialogHelper.setGradeManager(gradeManager);
         }
     }
+    
+    /**
+     * Gets the module manager.
+     * 
+     * @return The module manager
+     */
+    public ModuleManager getModuleManager() {
+        return moduleManager;
+    }
+    
     
     /**
      * Sets the current student.
@@ -103,6 +158,10 @@ public class DueDateController {
         // Update dialog helper
         if (dialogHelper == null) {
             dialogHelper = new DueDateDialogHelper(dueDateManager, gradeManager, this);
+            dialogHelper.setModuleManager(moduleManager);
+            if (gradeController != null) {
+                dialogHelper.setGradeController(gradeController);
+            }
         }
         dialogHelper.setCurrentStudent(student);
         
@@ -141,9 +200,12 @@ public class DueDateController {
                     courseFilterComboBox.setOnAction(e -> refreshDueDatesView());
                 }
 
-                Button addCourseFilterButton = new Button("Refresh");
-                addCourseFilterButton.setOnAction(e -> refreshDueDatesView());
-
+                Button refreshButton = new Button("Refresh");
+                refreshButton.setOnAction(e -> {
+                    refreshDueDatesView();
+                    // Also refresh modules for all courses
+                    refreshAllModules();
+                });
                 
                 // Add "All Courses" option
                 Label allCoursesLabel = new Label("All Courses");
@@ -159,7 +221,7 @@ public class DueDateController {
                 controlsBox.getChildren().clear();
                 controlsBox.getChildren().addAll(
                     addDueDateButton, 
-                    addCourseFilterButton,
+                    refreshButton,
                     filterLabel, 
                     filterComboBox,
                     courseFilterLabel,
@@ -195,6 +257,23 @@ public class DueDateController {
     }
     
     /**
+     * Refreshes module data for all courses.
+     */
+    public void refreshAllModules() {
+        if (moduleManager == null) return;
+        
+        // For each course, ensure modules are initialized
+        for (Course course : courseManager.getAllCourses()) {
+            moduleManager.initializeModulesForCourse(course.getId());
+        }
+        
+        // If grade controller is available, refresh its view too
+        if (gradeController != null) {
+            gradeController.refreshGradesView();
+        }
+    }
+    
+    /**
      * Creates the due dates view.
      * 
      * @return BorderPane containing the due dates interface
@@ -205,6 +284,7 @@ public class DueDateController {
         // Initialize the dialog helper
         if (dialogHelper == null) {
             dialogHelper = new DueDateDialogHelper(dueDateManager, gradeManager, this);
+            dialogHelper.setModuleManager(moduleManager);
             dialogHelper.setCurrentStudent(currentStudent);
         }
         
@@ -751,6 +831,15 @@ public class DueDateController {
      */
     public CourseManager getCourseManager() {
         return courseManager;
+    }
+
+    /**
+     * Gets the due dates pane.
+     * 
+     * @return The due dates pane
+     */
+    public BorderPane getDueDatesPane() {
+        return dueDatesPane;
     }
 
 }

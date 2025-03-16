@@ -134,6 +134,25 @@ public class GradeManager {
     }
     
     /**
+     * Gets all grades for a specific student in a specific module.
+     * 
+     * @param studentId ID of the student
+     * @param moduleId ID of the module
+     * @return List of grades for the specified student in the specified module
+     */
+    public List<Grades> getGradesForStudentInModule(String studentId, String moduleId) {
+        List<Grades> result = new ArrayList<>();
+        
+        for (Grades grade : allGrades) {
+            if (grade.getStudentId().equals(studentId) && grade.getModuleId().equals(moduleId)) {
+                result.add(grade);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * Calculates the weighted average grade for a student in a course.
      * 
      * @param studentId ID of the student
@@ -161,6 +180,56 @@ public class GradeManager {
         }
         
         return (totalWeightedScore / totalWeight) * 100;
+    }
+    
+    /**
+     * Calculates the weighted average grade for a student in a module.
+     * 
+     * @param studentId ID of the student
+     * @param moduleId ID of the module
+     * @return Weighted average grade as a percentage, or -1 if no grades are found
+     */
+    public double calculateModuleAverage(String studentId, String moduleId) {
+        List<Grades> moduleGrades = getGradesForStudentInModule(studentId, moduleId);
+        
+        if (moduleGrades.isEmpty()) {
+            return -1;
+        }
+        
+        double totalWeightedScore = 0;
+        double totalWeight = 0;
+        
+        for (Grades grade : moduleGrades) {
+            double weightedScore = (grade.getScore() / grade.getMaxScore()) * grade.getWeight();
+            totalWeightedScore += weightedScore;
+            totalWeight += grade.getWeight();
+        }
+        
+        if (totalWeight == 0) {
+            return -1;
+        }
+        
+        return (totalWeightedScore / totalWeight) * 100;
+    }
+    
+    /**
+     * Gets module averages for a student in a course.
+     * 
+     * @param studentId ID of the student
+     * @param courseId ID of the course
+     * @param moduleManager Module manager to get module information
+     * @return Map of module IDs to average grades
+     */
+    public Map<String, Double> getModuleAveragesForStudentInCourse(String studentId, String courseId, ModuleManager moduleManager) {
+        Map<String, Double> moduleAverages = new HashMap<>();
+        
+        List<CourseModule> modules = moduleManager.getModulesForCourse(courseId);
+        for (CourseModule module : modules) {
+            double average = calculateModuleAverage(studentId, module.getModuleId());
+            moduleAverages.put(module.getModuleId(), average);
+        }
+        
+        return moduleAverages;
     }
     
     /**
@@ -224,5 +293,9 @@ public class GradeManager {
         }
         
         return totalGradePoints / totalCredits;
+    }
+
+    public List<Grades> getAllGrades() {
+        return new ArrayList<>(allGrades);
     }
 }
