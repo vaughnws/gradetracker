@@ -21,13 +21,13 @@
 ### UI Implementation
 - [ ] Design main dashboard layout (@assignee)
 - [ ] Create student management view (@assignee)
-- [ ] Create grade entry form (@assignee) Need to improve, not user friendly yet.
+- [x] Create grade entry form (@assignee) Need to improve, not user friendly yet.
 - [ ] Create reports/analytics view (@assignee)
 - [x] Add a due date view for tracking upcoming assignments with list and calendar display
 
 ### Advanced Features
 - [ ] Grade calculation algorithms (@assignee) 
-- [ ] Data visualization components (@assignee) need more or better visualization
+- [x] Data visualization components (@assignee) need more or better visualization
 - [ ] Export functionality (PDF, CSV) (@assignee)
 - [ ] User authentication system (@assignee)
 

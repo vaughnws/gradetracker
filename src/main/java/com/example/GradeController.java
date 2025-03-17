@@ -271,9 +271,7 @@ private VBox createGradeDashboard() {
     
     // Add pie chart and grade indicators to the dashboard content
     dashboardContent.getChildren().addAll(gradesPieChart, gradeIndicatorBox);
-    
     dashboardBox.getChildren().addAll(dashboardTitle, dashboardContent);
-    
     return dashboardBox;
 }
     
