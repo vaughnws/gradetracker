@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Helper class for the GradeController that handles UI creation and dialog management.
+ * Helper class for the GradeController that handles UI creation and dialog management.  balls
  */
 public class GradeViewHelper {
     private GradeController parentController;
