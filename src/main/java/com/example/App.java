@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 import java.util.List;
 
 /**
- * Grade tracker main interface
+ * Grade tracker main interface kyle was also here
  */
 public class App extends Application {
 
