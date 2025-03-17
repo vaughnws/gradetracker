@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.scene.text.Text;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.geometry.Orientation;
 
@@ -49,6 +48,7 @@ public class GradeController {
     private Circle programAverageCircle;
     private Text programAverageText;
     private Label programAverageGpaLabel;
+    private ProgramAverageDisplay programAverageDisplay;
     
     // Reference to the current student
     private Student currentStudent = null;
@@ -130,108 +130,106 @@ public class GradeController {
         return currentStudent;
     }
     
-    /**
-     * Creates the grades view.
-     * 
-     * @return BorderPane containing the grades management interface
-     */
-    public BorderPane createGradesView() {
-        gradesPane = new BorderPane();
-        
-        // Title
-        Label titleLabel = new Label("Grades Management");
-        titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        titleLabel.setPadding(new Insets(10));
-        
-        // Create "Please sign in" view for when no student is logged in
-        notLoggedInBox = new VBox(10);
-        notLoggedInBox.setAlignment(Pos.CENTER);
-        Label signInLabel = new Label("Please sign up to view and manage grades");
-        signInLabel.setFont(Font.font("Arial", 16));
-        notLoggedInBox.getChildren().add(signInLabel);
-        
-        // Create the grades management UI
-        gradesBox = new VBox(15);
-        gradesBox.setPadding(new Insets(10));
-        
-        // Make the entire view scrollable
-        mainScrollPane = new ScrollPane();
-        mainScrollPane.setFitToWidth(true);
-        mainScrollPane.setContent(gradesBox);
-        
-        // Course selection and average display
-        HBox courseSelectionBox = new HBox(15);
-        courseSelectionBox.setAlignment(Pos.CENTER_LEFT);
-        courseSelectionBox.setPadding(new Insets(10));
-        
-        VBox courseSelectionVbox = new VBox(10);
-        HBox courseSelectionUI = createCourseSelectionUI();
-        HBox courseAverageDisplay = createCourseAverageDisplay();
-        
-        courseSelectionVbox.getChildren().addAll(courseSelectionUI, courseAverageDisplay);
-        courseSelectionBox.getChildren().add(courseSelectionVbox);
-        
-        // Grade entry form section
-        TitledPane gradeEntryPane = viewHelper.createGradeEntryForm(courseComboBox);
-        
-        // Add refresh button
-        Button refreshButton = new Button("Refresh");
-        refreshButton.setOnAction(e -> {
-            refreshGradesView();
-            refreshModuleViews(courseComboBox.getValue());
-            updateCourseAverageDisplay(courseComboBox.getValue());
-            updateGradeDistributionChart(courseComboBox.getValue());
-        });
-        
-        // Module view option
-        HBox optionsBox = new HBox(15);
-        optionsBox.setAlignment(Pos.CENTER_LEFT);
-        optionsBox.setPadding(new Insets(5));
-        
-        showModulesCheckBox = new CheckBox("Show Modules");
-        showModulesCheckBox.setSelected(true);
-        showModulesCheckBox.setOnAction(e -> refreshModuleViews(courseComboBox.getValue()));
-        
-        Button addModuleButton = new Button("Add Module");
-        addModuleButton.setOnAction(e -> {
-            Course selectedCourse = courseComboBox.getValue();
-            if (selectedCourse != null) {
-                viewHelper.showAddModuleDialog(selectedCourse);
-            } else {
-                UIHelper.showAlert("No Course Selected", "Please select a course to add a module.");
-            }
-        });
-        
-        optionsBox.getChildren().addAll(showModulesCheckBox, addModuleButton, refreshButton);
-        
-        // Create user-friendly grade dashboard with pie chart
-        VBox dashboardBox = createGradeDashboard();
-        
-        // Create modules content area
-        moduleContentBox = new VBox(15);
-        moduleContentBox.setPadding(new Insets(10));
-        
-        // Add components to the grades box
-        gradesBox.getChildren().addAll(
-            courseSelectionBox,
-            dashboardBox,
-            gradeEntryPane,
-            optionsBox,
-            new Separator(),
-            moduleContentBox
-        );
-        
-        // Initially show "Please sign in" message if no student is logged in
-        if (currentStudent == null) {
-            gradesPane.setCenter(notLoggedInBox);
+ /**
+ * Creates the grades view.
+ * 
+ * @return BorderPane containing the grades management interface
+ */
+public BorderPane createGradesView() {
+    gradesPane = new BorderPane();
+    
+    // Title
+    Label titleLabel = new Label("Grades Management");
+    titleLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+    titleLabel.setPadding(new Insets(10));
+    
+    // Create "Please sign in" view for when no student is logged in
+    notLoggedInBox = new VBox(10);
+    notLoggedInBox.setAlignment(Pos.CENTER);
+    Label signInLabel = new Label("Please sign up to view and manage grades");
+    signInLabel.setFont(Font.font("Arial", 16));
+    notLoggedInBox.getChildren().add(signInLabel);
+    
+    // Create the grades management UI
+    gradesBox = new VBox(15);
+    gradesBox.setPadding(new Insets(10));
+    
+    // Make the entire view scrollable
+    mainScrollPane = new ScrollPane();
+    mainScrollPane.setFitToWidth(true);
+    mainScrollPane.setContent(gradesBox);
+    
+    // Course selection and average display
+    HBox courseSelectionBox = new HBox(15);
+    courseSelectionBox.setAlignment(Pos.CENTER_LEFT);
+    courseSelectionBox.setPadding(new Insets(10));
+    
+    VBox courseSelectionVbox = new VBox(10);
+    HBox courseSelectionUI = createCourseSelectionUI(); // This creates the program average graphic
+    HBox courseAverageDisplay = createCourseAverageDisplay();
+    
+    courseSelectionVbox.getChildren().addAll(courseSelectionUI, courseAverageDisplay);
+    courseSelectionBox.getChildren().add(courseSelectionVbox);
+    
+    // Grade entry form section
+    TitledPane gradeEntryPane = viewHelper.createGradeEntryForm(courseComboBox);
+    
+    // Add refresh button
+    Button refreshButton = new Button("Refresh");
+    refreshButton.setOnAction(e -> refreshGradesView());
+    
+    // Module view option
+    HBox optionsBox = new HBox(15);
+    optionsBox.setAlignment(Pos.CENTER_LEFT);
+    optionsBox.setPadding(new Insets(5));
+    
+    showModulesCheckBox = new CheckBox("Show Modules");
+    showModulesCheckBox.setSelected(true);
+    showModulesCheckBox.setOnAction(e -> refreshModuleViews(courseComboBox.getValue()));
+    
+    Button addModuleButton = new Button("Add Module");
+    addModuleButton.setOnAction(e -> {
+        Course selectedCourse = courseComboBox.getValue();
+        if (selectedCourse != null) {
+            viewHelper.showAddModuleDialog(selectedCourse);
         } else {
-            gradesPane.setCenter(mainScrollPane);
+            UIHelper.showAlert("No Course Selected", "Please select a course to add a module.");
         }
-        
-        gradesPane.setTop(titleLabel);
-        
-        return gradesPane;
+    });
+    
+    optionsBox.getChildren().addAll(showModulesCheckBox, addModuleButton, refreshButton);
+    
+    // Create user-friendly grade dashboard with pie chart
+    VBox dashboardBox = createGradeDashboard();
+    
+    // Create modules content area
+    moduleContentBox = new VBox(15);
+    moduleContentBox.setPadding(new Insets(10));
+    
+    // Add components to the grades box
+    gradesBox.getChildren().addAll(
+        courseSelectionBox,
+        dashboardBox,
+        gradeEntryPane,
+        optionsBox,
+        new Separator(),
+        moduleContentBox
+    );
+    
+    // Initially show "Please sign in" message if no student is logged in
+    if (currentStudent == null) {
+        gradesPane.setCenter(notLoggedInBox);
+    } else {
+        gradesPane.setCenter(mainScrollPane);
+        // If student is already set, update the visuals immediately
+        updateOverallAverageDisplay();
+        updateProgramAverageVisual();
     }
+    
+    gradesPane.setTop(titleLabel);
+    
+    return gradesPane;
+}
     
 /**
  * Creates a user-friendly grade dashboard with a pie chart.
@@ -395,15 +393,14 @@ public void updateGradeDistributionChart(Course course) {
         return indicatorBox;
     }
     
-    /**
+/**
  * Creates the course selection UI.
  * 
  * @return HBox containing the course selection components
  */
 private HBox createCourseSelectionUI() {
-    HBox box = new HBox(10);
+    HBox box = new HBox(15);
     box.setAlignment(Pos.CENTER_LEFT);
-    box.setPadding(new Insets(5));
     
     Label selectCourseLabel = new Label("Select Course:");
     courseComboBox = new ComboBox<>();
@@ -423,11 +420,14 @@ private HBox createCourseSelectionUI() {
         }
     });
     
-    // Create a program average visual (mini gauges)
-    VBox programAverageBox = createProgramAverageVisual();
+    // Add the program average display
+    programAverageDisplay = new ProgramAverageDisplay();
     
-    box.getChildren().addAll(selectCourseLabel, courseComboBox, new Separator(Orientation.VERTICAL), programAverageBox);
-    HBox.setMargin(programAverageBox, new Insets(0, 0, 0, 20)); // Add margin to the left
+    // Put some space between the course selection and program average
+    Separator separator = new Separator(Orientation.VERTICAL);
+    HBox.setMargin(programAverageDisplay, new Insets(0, 0, 0, 10));
+    
+    box.getChildren().addAll(selectCourseLabel, courseComboBox, separator, programAverageDisplay);
     
     return box;
 }
@@ -483,31 +483,42 @@ private VBox createProgramAverageVisual() {
     return box;
 }
 
+
 /**
  * Updates the program average visual with the current data.
  */
 private void updateProgramAverageVisual() {
-    if (currentStudent == null || programAverageCircle == null || programAverageText == null) return;
+    if (currentStudent == null || programAverageCircle == null || programAverageText == null) {
+        System.out.println("Program Average Update: Missing student or UI elements");
+        return;
+    }
     
-    // Calculate overall average across all courses
-    double totalWeightedScore = 0;
+    System.out.println("Updating program average for student: " + currentStudent.getStudentId());
+    
+    // Use all grades for the student
+    List<Grades> allGrades = gradeManager.getGradesForStudent(String.valueOf(currentStudent.getStudentId()));
+    System.out.println("Found " + allGrades.size() + " grades for student");
+    
+    if (allGrades.isEmpty()) {
+        programAverageText.setText("N/A");
+        programAverageGpaLabel.setText("GPA: N/A");
+        programAverageCircle.setRadius(10); // Minimum size
+        programAverageCircle.setFill(Color.GRAY);
+        return;
+    }
+    
+    double totalScore = 0;
     double totalWeight = 0;
     double totalGradePoints = 0;
     
-    // Use all grades instead of course averages for program average
-    List<Grades> allGrades = gradeManager.getGradesForStudent(String.valueOf(currentStudent.getStudentId()));
-    double totalScore = 0;
-    double totalMaxScore = 0;
-    
     for (Grades grade : allGrades) {
-        double weightedScore = grade.getScore() * grade.getWeight();
-        double weightedMaxScore = grade.getMaxScore() * grade.getWeight();
-        
-        totalScore += weightedScore;
-        totalMaxScore += weightedMaxScore;
+        // For weighted percentage calculation
+        double proportion = grade.getScore() / grade.getMaxScore();
+        totalScore += proportion * grade.getWeight();
+        totalWeight += grade.getWeight();
         
         // For GPA calculation
-        double gradePercent = (grade.getScore() / grade.getMaxScore()) * 100;
+        double gradePercent = proportion * 100;
         double gradePoints = 0;
         if (gradePercent >= 90) gradePoints = 4.0;
         else if (gradePercent >= 80) gradePoints = 3.0;
@@ -515,13 +526,18 @@ private void updateProgramAverageVisual() {
         else if (gradePercent >= 60) gradePoints = 1.0;
         
         totalGradePoints += gradePoints * grade.getWeight();
-        totalWeight += grade.getWeight();
+        
+        System.out.println("Grade: " + grade.getAssignmentName() + 
+                          " - Score: " + grade.getScore() + "/" + grade.getMaxScore() + 
+                          " (Weight: " + grade.getWeight() + ")");
     }
     
-    if (totalWeight > 0 && totalMaxScore > 0) {
-        // Calculate overall percentage
-        double programAverage = (totalScore / totalMaxScore) * 100;
+    if (totalWeight > 0) {
+        // Calculate program average
+        double programAverage = (totalScore / totalWeight) * 100;
         double gpa = totalGradePoints / totalWeight;
+        
+        System.out.println("Calculated Program Average: " + programAverage + "%, GPA: " + gpa);
         
         // Update the text
         programAverageText.setText(String.format("%.1f%%", programAverage));
@@ -553,7 +569,7 @@ private void updateProgramAverageVisual() {
         // Apply the new radius
         programAverageCircle.setRadius(newRadius);
     } else {
-        // No grades
+        // No grades with weights
         programAverageText.setText("N/A");
         programAverageGpaLabel.setText("GPA: N/A");
         programAverageCircle.setRadius(10); // Minimum size
@@ -762,6 +778,11 @@ public void refreshGradesView() {
         
         // Calculate and update the overall average
         updateOverallAverageDisplay();
+        
+        // Update the program average display
+        if (programAverageDisplay != null) {
+            programAverageDisplay.update(gradeManager, String.valueOf(currentStudent.getStudentId()));
+        }
         
         // If a course is selected, refresh the module views
         if (courseComboBox.getValue() != null) {
