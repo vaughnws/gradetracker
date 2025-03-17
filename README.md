@@ -8,7 +8,7 @@ A comprehensive JavaFX application for tracking, managing, and analyzing student
 
 ![Grade Tracker Screenshot](https://ibb.co/Gv9Cr6r8)
 
-## ✨ Features
+# ✨ Features
 
 - **Student Management:** Register students and manage their course enrollments
 - **Course Organization:** Create and organize courses with customizable modules
@@ -18,39 +18,7 @@ A comprehensive JavaFX application for tracking, managing, and analyzing student
 - **GPA Calculation:** Automatically calculate GPA across all courses
 - **Calendar View:** Visualize assignment due dates in a monthly calendar
 
-## 🚀 Stretch Goals
-
-### Mobile Application
-- Develop a mobile companion app for both iOS and Android
-- Real-time syncing with the desktop application
-- Push notifications for upcoming assignments and due dates
-- Scan physical assignments/tests to automatically log grades
-
-### Cloud Integration
-- Implement cloud storage to access grades from anywhere
-- Enable sharing grade reports with parents/guardians
-- Secure data with end-to-end encryption
-- Automatic grade data backup and versioning
-
-### Smart Analytics
-- Predict final grades based on current performance
-- Suggest study strategies based on grade patterns
-- Generate weekly performance reports
-- Compare performance across semesters and academic years
-
-### Learning Management System (LMS) Integration
-- Connect with popular LMS platforms (Canvas, Blackboard, Moodle)
-- Automatically import assignments and grades
-- Submit assignments directly through the application
-- Integrate with academic calendars for scheduling
-
-### AI-Powered Study Assistant
-- Analyze learning patterns and suggest optimal study times
-- Create personalized study schedules based on grade goals
-- Recommend resources for challenging course topics
-- Virtual tutor for difficult subjects
-
-## 🚀 Getting Started
+# 🚀 Getting Started
 
 ### Prerequisites
 
@@ -58,7 +26,7 @@ A comprehensive JavaFX application for tracking, managing, and analyzing student
 - Maven 3.6 or higher
 - Git
 
-### Installation
+## Installation
 
 1. Clone the repository:
    ```bash
@@ -76,7 +44,7 @@ A comprehensive JavaFX application for tracking, managing, and analyzing student
    mvn javafx:run
    ```
 
-## 🖥️ Usage
+# 🖥️ Usage
 
 1. **Sign Up:** Create a student profile to begin tracking your academic progress
 2. **Add Courses:** Set up your courses for the semester
@@ -111,13 +79,45 @@ src/
     └── java/com/example/              # Test files
 ```
 
-## 👥 Team Members
+# 👥 Team Members
 
 - **Vaughn** - Lead Developer
 - **Mason** - Also Lead Developer
 - **Kyle** - Also Also Lead Developer
 
-## 🔧 Contributing
+## 🚀 Stretch Goals
+
+### Mobile Application
+- Develop a mobile companion app for both iOS and Android
+- Real-time syncing with the desktop application
+- Push notifications for upcoming assignments and due dates
+- Scan physical assignments/tests to automatically log grades
+
+### Cloud Integration
+- Implement cloud storage to access grades from anywhere
+- Enable sharing grade reports with parents/guardians
+- Secure data with end-to-end encryption
+- Automatic grade data backup and versioning
+
+### Smart Analytics
+- Predict final grades based on current performance
+- Suggest study strategies based on grade patterns
+- Generate weekly performance reports
+- Compare performance across semesters and academic years
+
+### Learning Management System (LMS) Integration
+- Connect with popular LMS platforms (Canvas, Blackboard, Moodle)
+- Automatically import assignments and grades
+- Submit assignments directly through the application
+- Integrate with academic calendars for scheduling
+
+### AI-Powered Study Assistant
+- Analyze learning patterns and suggest optimal study times
+- Create personalized study schedules based on grade goals
+- Recommend resources for challenging course topics
+- Virtual tutor for difficult subjects
+
+# 🔧 Contributing
 
 We welcome contributions to enhance Grade Tracker! Please follow these steps:
 
@@ -127,11 +127,11 @@ We welcome contributions to enhance Grade Tracker! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+# 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+# 🙏 Acknowledgments
 
 - [JavaFX](https://openjfx.io/) for the UI framework
 - [Maven](https://maven.apache.org/) for project management
