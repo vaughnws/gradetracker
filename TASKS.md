@@ -1,5 +1,10 @@
 # Grade Tracker Project Tasks
 
+- Group Members
+- [ ] Kyle
+- [x] Mason
+- [x] Vaughn
+
 ## 🚀 Project Setup
 
 - [x] Initialize Maven project
