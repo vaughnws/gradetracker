@@ -6,7 +6,7 @@
 
 A comprehensive JavaFX application for tracking, managing, and analyzing student grades across multiple courses and modules.
 
-![Grade Tracker Screenshot](https://i.ibb.co/XZDFGQGK/Screenshot-2025-03-17-at-12-05-25-PM.png)
+![Grade Tracker Screenshot](https://ibb.co/Gv9Cr6r8)
 
 ## ✨ Features
 
