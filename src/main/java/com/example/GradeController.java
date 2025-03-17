@@ -19,7 +19,6 @@ import java.util.Map;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Circle;
 import javafx.geometry.Orientation;
-
 /**
  * Controller for the grades management view.
  */
