@@ -2,9 +2,9 @@ package com.example;
 
 import java.util.UUID;
 
-/**
+/** 
  * Represents a module within a course.
- * Each course has exactly 9 modules that cover different material.
+ * Each course has exactly 9 modules that cover different material. kyle was here
  */
 public class CourseModule {
     private final String moduleId;

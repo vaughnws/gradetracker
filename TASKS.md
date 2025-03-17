@@ -1,9 +1,9 @@
 # Grade Tracker Project Tasks
 
 - Group Members
-- [ ] Kyle
+- [x] Kyle
 - [x] Mason
-- [x] Vaughn
+- [x] Vaughn is cool guy
 
 ## 🚀 Project Setup
 
