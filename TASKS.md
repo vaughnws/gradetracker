@@ -7,6 +7,9 @@
 - [x] Set up Git repository
 - [x] Add all team members as collaborators
 - [ ] Agree on coding standards
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## 📋 Features To Implement
 
@@ -17,6 +20,10 @@
 - [ ] Database/storage implementation (@assignee) this will take some time...
 - [x] Create Due Date model
 - [ ] Create a means to parse RRC learn data.
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
 
 ### UI Implementation
 - [ ] Design main dashboard layout (@assignee)
@@ -24,26 +31,48 @@
 - [x] Create grade entry form (@assignee) Need to improve, not user friendly yet.
 - [ ] Create reports/analytics view (@assignee)
 - [x] Add a due date view for tracking upcoming assignments with list and calendar display
+- [ ] Add a drop down menu for each course in the courses view that navigates to upcoming assignments
+- [ ] Add a dashboard menu
+- [ ] Create an account view
+- [ ] Create settings view
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
 
 ### Advanced Features
 - [ ] Grade calculation algorithms (@assignee) 
 - [x] Data visualization components (@assignee) need more or better visualization
 - [ ] Export functionality (PDF, CSV) (@assignee)
 - [ ] User authentication system (@assignee)
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## 🐛 Bug Fixes
 - [x] Fix any initial JavaFX/Maven compatibility issues (@assignee)
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## 📝 Documentation
 - [ ] Complete README.md with detailed setup instructions (@assignee)
 - [ ] Add code documentation (JavaDoc) (@assignee)
 - [ ] Create user manual (@assignee)
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## 🧪 Testing
 - [ ] Set up testing framework (@assignee)
 - [ ] Write unit tests for models (@assignee)
 - [ ] Write integration tests (@assignee)
 - [ ] Perform user acceptance testing (@assignee)
+- [ ] 
+- [ ] 
 
 ---
 
