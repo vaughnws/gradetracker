@@ -34,7 +34,7 @@
 - [ ] Design main dashboard layout (@assignee)
 - [ ] Create student management view (@assignee)
 - [x] Create grade entry form (@assignee) Need to improve, not user friendly yet.
-- [ ] Create reports/analytics view (@assignee)
+- [ ] Create reports/analytics view (@Mason)
 - [x] Add a due date view for tracking upcoming assignments with list and calendar display
 - [ ] Add a drop down menu for each course in the courses view that navigates to upcoming assignments
 - [ ] Add a dashboard menu
@@ -49,7 +49,7 @@
 - [ ] Grade calculation algorithms (@assignee) 
 - [x] Data visualization components (@assignee) need more or better visualization
 - [ ] Export functionality (PDF, CSV) (@assignee)
-- [ ] User authentication system (@assignee)
+- [ ] User authentication system (@Mason)
 - [ ] 
 - [ ] 
 - [ ] 
